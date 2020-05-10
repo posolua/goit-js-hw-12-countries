@@ -1,35 +1,35 @@
 import refs from './refs';
-import updateCountry from './updateCountryMarkup';
-import fetch from './fetchCountries';
+import fetchCountries from './fetchCountries';
 import debounce from 'lodash.debounce';
+import renderCountries from './countryMarkup';
+import PNotify from 'pnotify/dist/es/PNotify';
 import 'pnotify/dist/PNotifyBrightTheme.css';
 import 'pnotify/dist/es/PNotifyAnimate';
-import PNotify from 'pnotify/dist/es/PNotify.js';
 
-refs.countrySearch.addEventListener('input', debounce(onInput, 500));
+refs.searchForm.addEventListener('input', debounce(onFormInput, 500));
 
-function onInput(event) {
-  refs.content.innerHTML = '';
-  const value = event.target.value;
-  if (value) {
-    fetch.query = value;
-    fetch.fetchCountries().then(data => {
-      if (data.length >= 1 && data.length <= 10) {
-        PNotify.closeAll();
-        updateCountry(data);
-      } else {
-        data.status === 404
-          ? errorMessage('Сountry not found, try again!')
-          : errorMessage(
-              'Too many matches found, Please enter a more specific query!',
-            );
-      }
-    });
-  }
-}
+function onFormInput(event) {
+  event.preventDefault();
+  refs.countriesList.innerHTML = '';
+  const inputValue = event.target.value;
 
-function errorMessage(message) {
-  PNotify.error({
-    text: message,
+  fetchCountries(inputValue).then(result => {
+    if (result.length >= 1 && result.length <= 10) {
+      renderCountries(result);
+      PNotify.success({
+        title: 'Success!',
+        text: 'Great! We found information!',
+      });
+    } else if (result.length > 10) {
+      PNotify.error({
+        text: 'Too many mathes found. Please enter a more specific query!',
+      });
+      console.log('more than 10');
+    } else if (result.status === 404) {
+      PNotify.error({
+        title: 'Oh No!',
+        text: 'It seems there are no such country! Try again!',
+      });
+    }
   });
 }

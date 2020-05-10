@@ -1,5 +1,6 @@
 const refs = {
-  content: document.querySelector('.content'),
-  countrySearch: document.querySelector('#name_of_the_country'),
+  searchForm: document.querySelector('#country_input'),
+  countriesList: document.querySelector('#countries_box'),
 };
+
 export default refs;
